@@ -3,6 +3,11 @@ package talon.signature.learning;
 import java.util.*;
 import java.util.regex.Pattern;
 
+/**
+ * The module provides:
+ * functions used when evaluating signature's features
+ * regexp's constants used when evaluating signature's features
+ */
 public class Helpers {
     public static final Pattern RE_EMAIL = Pattern.compile("@");
     public static final Pattern RE_RELAX_PHONE = Pattern.compile(".*(\\(? ?[\\d]{2,3} ?\\)?.{0,3}){2,}");
@@ -12,7 +17,7 @@ public class Helpers {
     public static final Pattern RE_SIGNATURE_WORDS = Pattern.compile("(T|t)hank.*,|(B|b)est|(R|r)egards|^sent[ ]{1}from[ ]{1}my[\\s,!\\w]*$|BR|(S|s)incerely|(C|c)orporation|Group");
     public static final Pattern RE_NAME = Pattern.compile("[A-Z][a-z]+\\s\\s?[A-Z][\\.]?\\s\\s?[A-Z][a-z]+");
 
-    public static final Pattern SENDER_WITH_NAME_PATTERN = Pattern.compile("([\\s]*[\\S]+,?)+[\\s]*<.*>.*");
+    public static final Pattern RE_SENDER_WITH_NAME = Pattern.compile("[^<]+<.*>.*"); // "([\\s]*[\\S]+,?)+[\\s]*<.*>.*");
     public static final Pattern RE_CLUE_LINE_END = Pattern.compile(".*(W|w)rotes?:$");
 
     public static final Pattern INVALID_WORD_START = Pattern.compile("^\\(|\\+|[\\d].*$");
@@ -27,14 +32,14 @@ public class Helpers {
 
     /**
      * Tries to extract sender's names from `From:` header.
-     * <p/>
+     * <p>
      * It could extract not only the actual names but e.g.
      * the name of the company, parts of email, etc.
      */
     public static Set<String> extractNames(String sender) {
         Set<String> set = new HashSet<>();
         // Remove non-alphabetical characters
-        for (String word : sender.split("[^a-zA-Z\\d]+")) {
+        for (String word : sender.split("[^a-zA-Z]+")) {
             // Remove too short words and words from "black" list i.e.
             // words like `ru`, `gmail`, `com`, `org`, etc.
             if (word.length() > 1 && !BAD_SENDER_NAMES.contains(word)) {
@@ -51,7 +56,7 @@ public class Helpers {
         StringBuilder sb = new StringBuilder();
         for (String name : extractNames(sender)) {
             if (sb.length() > 0)
-                sb.append("|");
+                sb.append("( |$)");
             sb.append(name).append("|").append(capitalize(name));
         }
         return sb.length() > 0 && Pattern.compile(sb.toString()).matcher(text).find();
@@ -130,102 +135,4 @@ public class Helpers {
         }
     }
 
-    /**
-     * Returns a list of signature features.
-     */
-    public static Feature[] features(final String sender) {
-        return new Feature[]{
-                // Matches companies names, sender's names, address.
-                new Feature() {
-                    @Override
-                    public Boolean apply(String text) {
-                        return manyCapitalizedWords(text);
-                    }
-                },
-                // Line is too long.
-                new Feature() {
-                    @Override
-                    public Boolean apply(String text) {
-                        return text.length() > TOO_LONG_SIGNATURE_LINE;
-                    }
-                },
-                // Line contains email pattern.
-                new SearchFeature(RE_EMAIL),
-                // Line contains url.
-                new SearchFeature(RE_URL),
-                // Line contains phone number pattern.
-                new SearchFeature(RE_RELAX_PHONE),
-                // Line matches the regular expression "^[\s]*---*[\s]*$".
-                new SearchFeature(RE_SEPARATOR),
-                // Line has a sequence of 10 or more special characters.
-                new SearchFeature(RE_SPECIAL_CHARS),
-                // Line contains any typical signature words.
-                new SearchFeature(RE_SIGNATURE_WORDS),
-                // Line contains a pattern like Vitor R. Carvalho or William W. Cohen.
-                new SearchFeature(RE_NAME),
-                // Percentage of punctuation symbols in the line is larger than 50%
-                new Feature() {
-                    @Override
-                    public Boolean apply(String text) {
-                        return punctuationPercent(text) > 50;
-                    }
-                },
-                // Percentage of punctuation symbols in the line is larger than 90%
-                new Feature() {
-                    @Override
-                    public Boolean apply(String text) {
-                        return punctuationPercent(text) > 50;
-                    }
-                },
-                new Feature() {
-                    @Override
-                    public Boolean apply(String text) {
-                        return containsSenderNames(text, sender);
-                    }
-                }
-        };
-    }
-
-    /**
-     * Applies features to message body lines.
-     *
-     * Returns list of lists. Each of the lists corresponds to the body line
-     * and is constituted by the numbers of features occurrences (false or true).
-     *
-     * E.g. if element j of list i equals true this means that
-     * feature j occurred in line i (counting from the last line of the body).
-     */
-    public static Boolean[][] applyFeatures(String body, Feature[] features) {
-        List<String> lines = new ArrayList<>();
-        // collect all non empty lines
-        for (String line : body.split("\n")) {
-            String trimmed = line.trim();
-            if (trimmed.length() > 0) {
-                lines.add(trimmed);
-            }
-        }
-        // take the last SIGNATURE_MAX_LINES
-        lines = lines.subList(Math.max(0, lines.size() - SIGNATURE_MAX_LINES), lines.size());
-        // apply features, fallback to zeros
-        Boolean[][] results = new Boolean[lines.size()][features.length];
-        for (int i = 0; i < lines.size(); i++) {
-            String line = lines.get(i);
-            for (int j = 0; j < features.length; j++) {
-                Feature feature = features[j];
-                results[i][j] = feature.apply(line);
-            }
-        }
-        return results;
-    }
-
-    public static int[] buildPattern(String body, Feature[] features) {
-        int[] pattern = new int[features.length];
-        Boolean[][] results = applyFeatures(body, features);
-        for (int i = 0; i < results.length; i++) {
-            for (int j = 0; j < results[i].length; j++) {
-                pattern[j] += results[i][j] ? 1 : 0;
-            }
-        }
-        return pattern;
-    }
 }
