@@ -125,7 +125,6 @@ public class HelpersTest {
         for (Map.Entry<String, String[]> entry : senderNames.entrySet()) {
             Set<String> extractedNames = Helpers.extractNames(entry.getKey());
             for (String name : entry.getValue()) {
-                System.out.println(name);
                 assertTrue(extractedNames.contains(name));
             }
         }

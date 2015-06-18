@@ -19,14 +19,14 @@ public class FeatureSpace {
                 // Matches companies names, sender's names, address.
                 new Helpers.Feature() {
                     @Override
-                    public Boolean apply(String text) {
+                    public boolean apply(String text) {
                         return Helpers.manyCapitalizedWords(text);
                     }
                 },
                 // Line is too long.
                 new Helpers.Feature() {
                     @Override
-                    public Boolean apply(String text) {
+                    public boolean apply(String text) {
                         return text.length() > Helpers.TOO_LONG_SIGNATURE_LINE;
                     }
                 },
@@ -47,20 +47,20 @@ public class FeatureSpace {
                 // Percentage of punctuation symbols in the line is larger than 50%
                 new Helpers.Feature() {
                     @Override
-                    public Boolean apply(String text) {
+                    public boolean apply(String text) {
                         return Helpers.punctuationPercent(text) > 50;
                     }
                 },
                 // Percentage of punctuation symbols in the line is larger than 90%
                 new Helpers.Feature() {
                     @Override
-                    public Boolean apply(String text) {
+                    public boolean apply(String text) {
                         return Helpers.punctuationPercent(text) > 50;
                     }
                 },
                 new Helpers.Feature() {
                     @Override
-                    public Boolean apply(String text) {
+                    public boolean apply(String text) {
                         return Helpers.containsSenderNames(text, sender);
                     }
                 }
@@ -76,7 +76,7 @@ public class FeatureSpace {
      * E.g. if element j of list i equals true this means that
      * feature j occurred in line i (counting from the last line of the body).
      */
-    public static Boolean[][] applyFeatures(String body, Helpers.Feature[] features) {
+    public static boolean[][] applyFeatures(String body, Helpers.Feature[] features) {
         List<String> lines = new ArrayList<>();
         // collect all non empty lines
         for (String line : body.split("\n")) {
@@ -88,7 +88,7 @@ public class FeatureSpace {
         // take the last SIGNATURE_MAX_LINES
         lines = lines.subList(Math.max(0, lines.size() - Helpers.SIGNATURE_MAX_LINES), lines.size());
         // apply features, fallback to zeros
-        Boolean[][] results = new Boolean[lines.size()][features.length];
+        boolean[][] results = new boolean[lines.size()][features.length];
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i);
             for (int j = 0; j < features.length; j++) {
@@ -101,8 +101,8 @@ public class FeatureSpace {
 
     public static int[] buildPattern(String body, Helpers.Feature[] features) {
         int[] pattern = new int[features.length];
-        Boolean[][] results = applyFeatures(body, features);
-        for (Boolean[] result : results) {
+        boolean[][] results = applyFeatures(body, features);
+        for (boolean[] result : results) {
             for (int j = 0; j < result.length; j++) {
                 pattern[j] += result[j] ? 1 : 0;
             }

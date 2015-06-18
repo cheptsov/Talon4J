@@ -9,18 +9,18 @@ public class FeatureSpaceTest {
     public void testApplyFeatures() throws Exception {
         String sender = "John <john@example.com>";
         Helpers.Feature[] features = FeatureSpace.features(sender);
-        Boolean[][] result = FeatureSpace.applyFeatures("John Doe\n" +
+        boolean[][] result = FeatureSpace.applyFeatures("John Doe\n" +
                 "\n" +
                 "VP Research and Development, Xxxx Xxxx Xxxxx\n" +
                 "\n" +
                 "555-226-2345\n" +
                 "\n" +
                 "john@example.com", features);
-        assertArrayEquals(new Boolean[][] {
-                new Boolean[] {true, false, false, false, false, false, false, false, false, false, false, true},
-                new Boolean[] {true, false, false, false, false, false, false, false, false, false, false, false},
-                new Boolean[] {false, false, false, false, true, false, false, false, false, false, false, false},
-                new Boolean[] {false, false, true, false, false, false, false, false, false, false, false, false }
+        assertArrayEquals(new boolean[][] {
+                new boolean[] {true, false, false, false, false, false, false, false, false, false, false, true},
+                new boolean[] {true, false, false, false, false, false, false, false, false, false, false, false},
+                new boolean[] {false, false, false, false, true, false, false, false, false, false, false, false},
+                new boolean[] {false, false, true, false, false, false, false, false, false, false, false, false }
         }, result);
     }
     @Test

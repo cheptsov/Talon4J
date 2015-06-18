@@ -52,7 +52,7 @@ public class Helpers {
     /**
      * Searches sender's name or it's part.
      */
-    public static Boolean containsSenderNames(String text, String sender) {
+    public static boolean containsSenderNames(String text, String sender) {
         StringBuilder sb = new StringBuilder();
         for (String name : extractNames(sender)) {
             if (sb.length() > 0)
@@ -69,7 +69,7 @@ public class Helpers {
     /**
      * Returns true if percentage of capitalized words is greater then 66% and false otherwise.
      */
-    public static Boolean manyCapitalizedWords(String text) {
+    public static boolean manyCapitalizedWords(String text) {
         return capitalizedWordsPercent(text) > 66;
     }
 
@@ -118,8 +118,13 @@ public class Helpers {
         return categoriesPercent(text, Character.OTHER_PUNCTUATION);
     }
 
+    public static boolean hasSignature(String body, String sender) {
+        // TODO
+        return false;
+    }
+
     interface Feature {
-        Boolean apply(String text);
+        boolean apply(String text);
     }
 
     static class SearchFeature implements Feature {
@@ -130,7 +135,7 @@ public class Helpers {
         }
 
         @Override
-        public Boolean apply(String text) {
+        public boolean apply(String text) {
             return pattern.matcher(text).find();
         }
     }
