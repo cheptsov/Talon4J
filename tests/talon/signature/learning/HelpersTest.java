@@ -163,4 +163,21 @@ public class HelpersTest {
         assertEquals(0, Helpers.punctuationPercent("qqq ggg hhh"));
         assertEquals(50, Helpers.punctuationPercent("q,w."));
     }
+
+    @Test
+    public void testHasSignature() throws Exception {
+        assertTrue(Helpers.hasSignature("sender", "sender@example.com"));
+        assertTrue(Helpers.hasSignature("http://www.example.com\n555 555 5555", "sender@example.com"));
+        assertTrue(Helpers.hasSignature("http://www.example.com\naddress@example.com", "sender@example.com"));
+        assertFalse(Helpers.hasSignature("http://www.example.com/555-555-5555", "sender@example.com"));
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 28; i++) {
+            if (i > 0)
+                sb.append("q");
+            sb.append(i);
+        }
+        sb.append(" sender");
+        assertFalse(Helpers.hasSignature(sb.toString(), "sender@example.com"));
+        assertFalse(Helpers.hasSignature("", ""));
+    }
 }

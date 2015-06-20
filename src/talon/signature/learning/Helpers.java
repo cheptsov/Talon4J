@@ -26,8 +26,8 @@ public class Helpers {
             "gmail", "yandex", "mail", "yahoo", "mailgun", "mailgunhq", "example", "com", "org",
             "net", "ru", "mailto"));
 
-    public static final int SIGNATURE_MAX_LINES = 11;
-    public static final int TOO_LONG_SIGNATURE_LINE = 60;
+    public static int SIGNATURE_MAX_LINES = 11;
+    public static int TOO_LONG_SIGNATURE_LINE = 60;
 
 
     /**
@@ -118,9 +118,33 @@ public class Helpers {
         return categoriesPercent(text, Character.OTHER_PUNCTUATION);
     }
 
+    /**
+     * Checks if the body has signature. Returns True or False.
+     */
     public static boolean hasSignature(String body, String sender) {
-        // TODO
-        return false;
+        List<String> lines = new ArrayList<>();
+        for (String line : body.split("\r?\n")) {
+            if (!line.trim().isEmpty()) {
+                lines.add(line);
+            }
+        }
+        lines = lines.subList(Math.max(0, lines.size() - Helpers.SIGNATURE_MAX_LINES), lines.size());
+        int upvotes = 0;
+        for (String line : lines) {
+            // we check lines for sender's name, phone, email and url,
+            // those signature lines don't take more then 27 lines
+            if (line.trim().length() <= 27) {
+                if (containsSenderNames(line, sender)) {
+                    return true;
+                } else {
+                    if ((RE_RELAX_PHONE.matcher(line).find() ? 1 : 0) +
+                            (RE_EMAIL.matcher(line).find() ? 1 : 0) + (RE_URL.matcher(line).find() ? 1 : 0) == 1) {
+                        upvotes++;
+                    }
+                }
+            }
+        }
+        return upvotes > 1;
     }
 
     interface Feature {

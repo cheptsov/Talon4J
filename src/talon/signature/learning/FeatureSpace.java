@@ -79,7 +79,7 @@ public class FeatureSpace {
     public static boolean[][] applyFeatures(String body, Helpers.Feature[] features) {
         List<String> lines = new ArrayList<>();
         // collect all non empty lines
-        for (String line : body.split("\n")) {
+        for (String line : body.split("\r?\n")) {
             String trimmed = line.trim();
             if (trimmed.length() > 0) {
                 lines.add(trimmed);
