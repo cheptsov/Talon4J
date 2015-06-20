@@ -38,4 +38,16 @@ public class ExtractionTest {
         Classifier.train(classifier);
         assertEquals(new Extraction.ExtractedSignature("Blah", "--\r\n\r\nSergey Obukhov"), Extraction.extract("Blah\r\n--\r\n\r\nSergey Obukhov", "Sergey", classifier));
     }
+
+    @Test
+    public void testOver2TextLinesAfterSignature() throws Exception {
+        Classifier classifier = Classifier.init();
+        Classifier.train(classifier);
+        assertEquals("", Extraction.extract("Blah\n" +
+                "\n" +
+                "Bob,\n" +
+                "If there are more than\n" +
+                "2 non signature lines in the end\n" +
+                "It's not signature\n", "Bob", classifier).signature);
+    }
 }

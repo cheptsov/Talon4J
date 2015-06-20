@@ -160,7 +160,7 @@ public class Extraction {
         char[] reveredMarkers = Arrays.copyOf(markers, markers.length);
         reverseArray(reveredMarkers);
         Matcher matcher = RE_REVERSE_SIGNATURE.matcher(new String(reveredMarkers));
-        if (matcher.find()) {
+        if (matcher.find() && matcher.start() == 0) {
             return new MarkedLines(Arrays.asList(lines).subList(0, lines.length - matcher.end()).toArray(new String[0]),
                     Arrays.asList(lines).subList(Math.max(0, lines.length - matcher.end()), lines.length).toArray(new String[0]));
         } else {

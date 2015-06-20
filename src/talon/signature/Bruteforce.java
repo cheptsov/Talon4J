@@ -89,7 +89,7 @@ public class Bruteforce {
         char[] reversedMarkers = Arrays.copyOf(markers, markers.length);
         reverseArray(reversedMarkers);
         Matcher matcher = Bruteforce.RE_SIGNATURE_CANDIDATE.matcher(new String(reversedMarkers));
-        if (matcher.find()) {
+        if (matcher.find() && matcher.start() == 0) {
             return candidate.subList(Math.max(0, candidate.size() - end(matcher)), candidate.size());
         } else {
             return Collections.emptyList();
