@@ -50,4 +50,11 @@ public class ExtractionTest {
                 "2 non signature lines in the end\n" +
                 "It's not signature\n", "Bob", classifier).signature);
     }
+
+    @Test
+    public void testNoSignature() throws Exception {
+        Classifier classifier = Classifier.init();
+        Classifier.train(classifier);
+        assertEquals("", Extraction.extract("Hello", "bob@foo.bar", classifier).signature);
+    }
 }

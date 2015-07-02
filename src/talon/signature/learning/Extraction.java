@@ -53,23 +53,13 @@ public class Extraction {
             MarkedLines ml = processMarkedLines(lines, markers);
 
             if (ml.signature.length > 0) {
-                String text = join(ml.text, delimiter);
+                String text = Utils.join(ml.text, delimiter);
                 if (!text.trim().isEmpty()) {
-                    return new ExtractedSignature(text, join(ml.signature, delimiter));
+                    return new ExtractedSignature(text, Utils.join(ml.signature, delimiter));
                 }
             }
         }
         return new ExtractedSignature(body, "");
-    }
-
-    static String join(String[] string, String delimiter) {
-        StringBuilder sbStr = new StringBuilder();
-        for (int i = 0, il = string.length; i < il; i++) {
-            if (i > 0)
-                sbStr.append(delimiter);
-            sbStr.append(string[i]);
-        }
-        return sbStr.toString();
     }
 
     public static class ExtractedSignature {
